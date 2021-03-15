@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.broadcastrecieverdemo">
+
+    //custom permission, which will be registered in system when app is installed
+    //dangerous permission are those that will require runtime user interation to set permission
+    <permission android:name="com.example.broadcastrecieverdemo.CUSTOM_PERMISSION"/>
+
+    //sender app can set permission that is mandatory for receiver to have using uses-permission and vice-versa
+    //Used permission for demo purpose, but in real app add permission according to use-case
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.BroadcastRecieverDemo">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+<!--        Recievers defined in manifest are static reciever, and can recieve intent even when app is not running-->
+<!--        Implicit broadcast intent is for all apps that have subscribed to that intent-->
+<!--        Explicit broadcast intent is for specific app whose package name is defined in broadcast intent-->
+<!--        Some system level implicit broadcast intent action can not be subscribed by static reciever -> eg. Connectivity change -->
+<!--        The reason being that the system resource can be consumed significantly if frequently same action is recieved by all app-->
+<!--        hence only rarely recieved intent action like BOOT_COMPLETED can be statically registered, meaning can recieve intent even when app is not running-->
+<!--        On the other hand dynamically registered reciever are scoped in the context of app, and can recieve braodcast only when app is running-->
+<!--        hence any intent action can be registered dynamically/programitally to recieve broadcast-->
+
+        <receiver android:name=".broadcastReciever.DemoBroadcastReciever">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        //android:exported true is required if other apps will call this receiver
+        //By default android:exported is always true if intent-filter is defined inside
+        <receiver android:name=".broadcastReciever.ExplicitBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.example.broadcastrecieverdemo.EXPLICIT_ACTION"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".broadcastReciever.OrderedBroadcastReceiver2"
+            android:permission="android.permission.INTERNET">
+            <intent-filter android:priority="2">
+                <action android:name="com.example.broadcastrecieverdemo.ORDERED_ACTION"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".broadcastReciever.OrderedBroadcastReceiver3"
+            android:permission="com.example.broadcastrecieverdemo.CUSTOM_PERMISSION">
+<!--            higher the priority number higher the priority-->
+            <intent-filter android:priority="3">
+                <action android:name="com.example.broadcastrecieverdemo.ORDERED_ACTION"/>
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
